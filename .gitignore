@@ -1,32 +1,62 @@
-# Prerequisites
-*.d
+# Ignore system files
+.DS_Store
+Thumbs.db
 
-# Compiled Object files
-*.slo
-*.lo
-*.o
-*.obj
+# Ignore the vendor directory (Composer dependencies)
+vendor/
 
-# Precompiled Headers
-*.gch
-*.pch
+# Composer files that can be ignored
+composer.lock
 
-# Compiled Dynamic libraries
-*.so
-*.dylib
-*.dll
+# Ignore the node_modules directory (if you use Node.js in your project)
+node_modules/
 
-# Fortran module files
-*.mod
-*.smod
+# Ignore PHPUnit test result cache
+.phpunit.result.cache
 
-# Compiled Static libraries
-*.lai
-*.la
-*.a
-*.lib
+# Ignore compiled code
+*.compiled.php
 
-# Executables
-*.exe
-*.out
-*.app
+# Ignore sensitive environment configuration files
+.env
+.env.*.local
+
+# Ignore log and cache directories
+storage/logs/
+storage/framework/cache/
+storage/framework/sessions/
+storage/framework/views/
+
+# Ignore temporary files created by editors or IDEs
+*.swp
+*.swo
+*.bak
+*.tmp
+
+# Ignore VS Code settings and history files
+.vscode/
+.history/
+
+# Ignore build directories and artifacts
+/build/
+dist/
+public/build/
+
+# Ignore IDE configuration and metadata
+.idea/
+.phpstorm.meta.php
+*.iml
+
+# Ignore Laravel specific files (if applicable)
+bootstrap/cache/
+public/storage
+storage/*.key
+
+# Ignore Symfony specific files (if applicable)
+var/
+vendor/symfony/
+
+# Ignore other potentially sensitive files
+*.log
+*.sql
+*.sqlite
