@@ -1,0 +1,318 @@
+{
+	"info": {
+		"_postman_id": "6bed360e-b70d-47b2-8d1f-a4f8dcae55c5",
+		"name": "DTT Back end assessment – Catering API",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "31868406"
+	},
+	"item": [
+		{
+			"name": "http://localhost/web_backend_test_catering_api/Location",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "[\r\n    {\r\n        \"City\": \"Leiden\",\r\n        \"Adress\": \"123 Straat\",\r\n        \"ZipCode\": \"00aa00\",\r\n        \"CountryCode\": \"+31\",\r\n        \"PhoneNumber\": \"123456789\"\r\n    },\r\n    {\r\n        \"City\": \"Amersfoort\",\r\n        \"Adress\": \"123 Straat\",\r\n        \"ZipCode\": \"00aa00\",\r\n        \"CountryCode\": \"+31\",\r\n        \"PhoneNumber\": \"123456789\"\r\n    },\r\n    {\r\n        \"City\": \"Almere\",\r\n        \"Adress\": \"123 Straat\",\r\n        \"ZipCode\": \"00aa00\",\r\n        \"CountryCode\": \"+31\",\r\n        \"PhoneNumber\": \"123456789\"\r\n    },\r\n        {\r\n        \"City\": \"Apeldoorn\",\r\n        \"Adress\": \"123 Straat\",\r\n        \"ZipCode\": \"00aa00\",\r\n        \"CountryCode\": \"+31\",\r\n        \"PhoneNumber\": \"123456789\"\r\n    }\r\n]",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost/web_backend_test_catering_api/Location",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"path": [
+						"web_backend_test_catering_api",
+						"Location"
+					],
+					"query": [
+						{
+							"key": "a",
+							"value": null,
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "http://localhost/web_backend_test_catering_api/Tag",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "//Its possiple to add Tags seperately.\r\n{\r\n    \"TagName\": \"tag4\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost/web_backend_test_catering_api/Tag",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"path": [
+						"web_backend_test_catering_api",
+						"Tag"
+					],
+					"query": [
+						{
+							"key": "Id",
+							"value": "123456",
+							"disabled": true
+						},
+						{
+							"key": "TagName",
+							"value": "Tag1",
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "http://localhost/web_backend_test_catering_api/Facility",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "//To be able to add facility, its needed to get location id from database, and to enter it below. \r\n//For the first time it will work. For the next queries its asked to type the location id below.\r\n[\r\n    {\r\n        \"Name\": \"facility4\",\r\n        \"LocationId\": \"904770370\",\r\n        \"TagNames\":[\"tag5\", \"tag6\"]\r\n    }\r\n]",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost/web_backend_test_catering_api/Facility",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"path": [
+						"web_backend_test_catering_api",
+						"Facility"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "http://localhost/web_backend_test_catering_api/Facility Copy",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "//Its possible to add multiple facilities at once.\r\n//To be able to add facility, its needed to get location id from database, and to enter it below. \r\n//Tag Names are entered as an array. Its created when facility objects are created.\r\n\r\n[\r\n    {\r\n        \"Name\": \"facility2\",\r\n        \"LocationId\": \"299063749\",\r\n        \"TagNames\":[\"tag10\", \"tag11\"]\r\n    },\r\n    {\r\n        \"Name\": \"facility3\",\r\n        \"LocationId\": \"201278109\",\r\n        \"TagNames\":[\"tag12\"]\r\n    }\r\n]",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost/web_backend_test_catering_api/Facility",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"path": [
+						"web_backend_test_catering_api",
+						"Facility"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "http://localhost/web_backend_test_catering_api/FacilityExtended?city=ams",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "//Gets all facilities.",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost/web_backend_test_catering_api/Facility",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"path": [
+						"web_backend_test_catering_api",
+						"Facility"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "http://localhost/web_backend_test_catering_api/FacilityExtended?city=ams Copy",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "//Gets one facility with its Id catched from endpoint",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost/web_backend_test_catering_api/Facility/861645019",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"path": [
+						"web_backend_test_catering_api",
+						"Facility",
+						"861645019"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "http://localhost/web_backend_test_catering_api/FacilityExtended?city=ams Copy 2",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "//Gets one facility with its Id catched from endpoint",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost/web_backend_test_catering_api/Facility/861645019",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"path": [
+						"web_backend_test_catering_api",
+						"Facility",
+						"861645019"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "http://localhost/web_backend_test_catering_api/FacilityExtended?city=Istan",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost/web_backend_test_catering_api/FacilityExtended?city=ams",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"path": [
+						"web_backend_test_catering_api",
+						"FacilityExtended"
+					],
+					"query": [
+						{
+							"key": "city",
+							"value": "ams"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "http://localhost/web_backend_test_catering_api/Facility/410499418",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "//It catches Id from the end point. It must be Id of facility. \r\n//It works at the first time. Then its needed to be typed.\r\n//This id belongs to facility1",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost/web_backend_test_catering_api/Facility/861645019",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"path": [
+						"web_backend_test_catering_api",
+						"Facility",
+						"861645019"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "http://localhost/web_backend_test_catering_api/Facility",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "//This query is addapted to change the values of facility2 row. \r\n//Id should always belong to a facility Id. \r\n//In this query facility2 is being changed to 2facility2 and its tagnames are being updated to tag13 and tag 14.\r\n\r\n{\r\n    \"Id\": \"98651634\",\r\n    \"Name\": \"2facility2\",\r\n    \"TagNames\":[\"tag13\", \"tag14\"]\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost/web_backend_test_catering_api/Facility",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"path": [
+						"web_backend_test_catering_api",
+						"Facility"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
