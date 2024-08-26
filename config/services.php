@@ -109,7 +109,7 @@ class DbService
             foreach ($classProperties as $property) {
                 $propertyName = $property->getName();
 
-                if (!$oldReflection->hasProperty($propertyName)) {
+                if (!$oldReflection->hasProperty($propertyName) && $propertyName != "TagNames") {
                     $match = false;
                 }
             }
@@ -126,7 +126,6 @@ class DbService
                         $newProperty->setValue($newObject, $value);
                     }
                 }
-
                 return $newObject;
             }
         }
@@ -152,9 +151,9 @@ class DbService
             $objects[] = $object;
         }
 
-        if (isset($object[0]))
+        if (isset($objects[0])) {
             return $objects;
-        else
+        } else
             return null;
     }
     function dbGetByIdAndTableName(int $id, string $tableName): BaseEntity | null
@@ -162,26 +161,14 @@ class DbService
 
         $query = "SELECT * FROM $tableName WHERE Id = $id";
         $object = $this->dbGetByQuery($query);
-        if (!is_null($object)) {
-            return  $this->objectToBaseEntityConverter($object);
-        }
-        if (is_null($object)) {
+        if (isset($object[0])) {
+
+            return  $this->objectToBaseEntityConverter($object[0]);
+        } else {
             return null;
         }
     }
-    function dbObjectGetByObject(BaseEntity $oldObject): BaseEntity | null
-    {
-        $tableName = $this->tableNameGetterByClass($oldObject);
-        $query = "SELECT * FROM $tableName WHERE Id = $oldObject->Id";
-        $object = $this->dbGetByQuery($query);
-        $this->p($object);
-        if (!is_null($object)) {
-            return  $this->objectToBaseEntityConverter($object);
-        }
-        if (is_null($object)) {
-            return null;
-        }
-    }
+
     function dbDeleteById(int $id) //TODO it might need to get table name also.
     {
         $this->currentTableNameSetter();
@@ -250,7 +237,7 @@ class DbService
         $keys = "";
         $values = "";
         foreach ($obj as $key => $value) {
-            if ($key != "TagName") {
+            if ($key != "TagNames") {
                 $keys .= "$key, ";
                 $values .= ":$key, ";
                 $bindArray[":$key"] = $value;
@@ -274,8 +261,8 @@ class DbService
             try {
                 $query = $this->dbCreateQueryPreparer($object, $bindArray);
                 $this->_db->executeQuery($query, $bindArray);
-                if ($object instanceof Facility && isset($object->TagName[0])) {
-                    $tagName = $object->TagName;
+                if ($object instanceof Facility && isset($object->TagNames[0])) {
+                    $tagName = $object->TagNames;
                     for ($j = 0; $j < count($tagName); $j++) {
 
                         $tagQuery = "SELECT tag.Id FROM tag WHERE tag.TagName='$tagName[$j]'";
@@ -294,7 +281,6 @@ class DbService
 
                         if (!is_null($result)) {
                             $facilityId = $object->Id;
-                            $this->p($facilityId);
                             $facilityTagsInsertQuery = "INSERT INTO facilitytags (`facilityId`, `tagId`) VALUES ($facilityId, '$tagId')";
                             $this->_db->executeQuery($facilityTagsInsertQuery);
                         }
@@ -321,16 +307,36 @@ class DbService
     {
         $this->currentTableNameSetter();
         $obj = $this->objectCreatorFromBodyData();
-        if (is_null($this->dbGetByIdAndTableName($obj->Id, $this->_tableName)))
-            throw new Exception;
+        $result = $this->dbGetByIdAndTableName($obj->Id, $this->_tableName);
+        if (!$result)
+            throw new Exception("The data couldnt be matched.");
         $qq = "";
         $bindArray = [];
         foreach ($obj as $key => $value) {
-            if ($key == "Id")
+            if ($key == "Id" || $key == "TagNames")
                 goto a;
             $qq .= "`$key`='$value', ";
             $bindArray[":$key"] = $value;
-            a:;
+            a:
+            if ($key == "TagNames") {
+                $deleteFacilityTagsQuery = "DELETE FROM facilitytags where facilitytags.FacilityId = $result->Id";
+                $this->_db->executeQuery($deleteFacilityTagsQuery);
+                foreach ($value as $val) {
+                    $selectTagQuery =  "SELECT tag.Id FROM tag WHERE tag.TagName='$val'";
+                    $result = $this->dbGetByQuery($selectTagQuery);
+                    if (isset($result[0]))
+                        $tagId = $result[0]->Id;
+                    else
+                        $tagId = 0;
+                    if ($tagId == null) {
+                        $tagId = mt_rand(0, 999999999);
+                        $insertTagQuery =  "INSERT INTO tag (Id, TagName) VALUES ($tagId,'$val')";
+                        $this->_db->executeQuery($insertTagQuery);
+                    }
+                    $insertFacilityTagsQuery =  "INSERT INTO facilitytags (FacilityId, TagId) VALUES ($obj->Id,$tagId)";
+                    $this->_db->executeQuery($insertFacilityTagsQuery);
+                }
+            }
         }
 
         $qq = substr($qq, 0, -2);
@@ -339,7 +345,7 @@ class DbService
         $this->_db->executeQuery($query);
     }
 
-    public function p($data)
+    private function p($data)
     {
         print_r("------------------------------------------------------");
         print_r(debug_backtrace()[0]["line"]);

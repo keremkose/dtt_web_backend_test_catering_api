@@ -45,7 +45,6 @@ class FacilityController extends BaseController
         if ($city !== null) {
             $query .= " AND l.City LIKE '%$city%'";
         }
-        $this->dbService->p($query);
         $result = $this->dbService->dbGetByQuery($query);
         print_r($result);
     }

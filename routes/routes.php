@@ -2,7 +2,6 @@
 
 /** @var Bramus\Router\Router $router */
 
-
 $router->get('/Facility', App\Controllers\FacilityController::class . '@getallFacility');
 $router->get('/Facility/{id}', App\Controllers\FacilityController::class . '@getsingleFacility');
 $router->get('/FacilityExtended', App\Controllers\FacilityController::class . '@getallextendedFacility');
@@ -21,8 +20,6 @@ $router->post('/Facility', App\Controllers\FacilityController::class . '@postFac
 $router->post('/Location', App\Controllers\LocationController::class . '@postLocation');
 $router->post('/Tag', App\Controllers\TagController::class . '@postTag');
 
-
-
 $router->put('/Facility', App\Controllers\FacilityController::class . '@putFacility');
-// $router->put('/Location', App\Controllers\LocationController::class . '@putLocation');
-// $router->put('/Tag', App\Controllers\TagController::class . '@putTag');
+$router->put('/Location', App\Controllers\LocationController::class . '@putLocation');
+$router->put('/Tag', App\Controllers\TagController::class . '@putTag');
