@@ -29,8 +29,7 @@ class LocationController extends BaseController
     {
         $obj = $this->dbService->objectCreatorFromBodyData();
         if (is_array($obj)) {
-            $this->dbService->p("Please input one object on each process.");
-            throw new Exception();
+            throw new Exception("Please input one object on each process.");
         }
         $this->dbService->dbDeleteById($obj->Id);
     }
