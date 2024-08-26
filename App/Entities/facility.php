@@ -11,5 +11,5 @@ class Facility extends BaseEntity
     public ?string $CreationDate;
     public string $Name = "";
     public int $LocationId = 0;
-    // public ?int  $tagId;
+    public ?array $TagName;
 }

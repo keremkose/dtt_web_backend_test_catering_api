@@ -95,7 +95,7 @@ class DbService
                 break;
         }
     }
-    function objectToBaseEntityConverter($object): BaseEntity //TODO
+    function objectToBaseEntityConverter($object): BaseEntity | null //TODO
     {
         $oldReflection = new ReflectionObject($object);
         $reflectionArray = [
@@ -132,14 +132,6 @@ class DbService
         }
         return null;
     }
-    function queryFetchSingleObject($query): object | null
-    {
-        $this->_db->executeQuery($query);
-        $object = $this->_db->getStatement()->fetchObject();
-        if ($object == false)
-            return null;
-        return $object;
-    }
     function dbGetAll(): array | object
     {
         $this->currentTableNameSetter();
@@ -152,34 +144,24 @@ class DbService
         }
         return $objects;
     }
-    function dbGetSingleByQueryGeneral($query)
+    function dbGetByQuery($query): array | null
     {
         $this->_db->executeQuery($query);
         $objects = [];
         while ($object = $this->_db->getStatement()->fetchObject()) {
             $objects[] = $object;
         }
-        return $objects;
-    }
-    // function dbGetSingleByQueryGeneral($query)
-    // {
-    //     $results = $this->queryFetchSingleObject($query);
-    //     return $results;
-    //     print_r($results);
-    // }
-    function dbGetSingleByQueryCurrentTable($condition)
-    {
-        $this->currentTableNameSetter();
-        $tableName = $this->_tableName;
-        $query = "SELECT * FROM $tableName WHERE $condition";
-        $results = $this->queryFetchSingleObject($query);
-        return $results;
-        print_r($results);
+
+        if (isset($object[0]))
+            return $objects;
+        else
+            return null;
     }
     function dbGetByIdAndTableName(int $id, string $tableName): BaseEntity | null
     {
+
         $query = "SELECT * FROM $tableName WHERE Id = $id";
-        $object = $this->queryFetchSingleObject($query);
+        $object = $this->dbGetByQuery($query);
         if (!is_null($object)) {
             return  $this->objectToBaseEntityConverter($object);
         }
@@ -191,7 +173,7 @@ class DbService
     {
         $tableName = $this->tableNameGetterByClass($oldObject);
         $query = "SELECT * FROM $tableName WHERE Id = $oldObject->Id";
-        $object = $this->queryFetchSingleObject($query);
+        $object = $this->dbGetByQuery($query);
         $this->p($object);
         if (!is_null($object)) {
             return  $this->objectToBaseEntityConverter($object);
@@ -214,9 +196,9 @@ class DbService
     {
         $tableName = $this->tableNameGetterByClass($obj);
         $query = "DELETE FROM $this->$tableName WHERE Id = $obj->Id";
-        $this->queryFetchSingleObject($query);
+        $this->dbGetByQuery($query);
     }
-    public function objectCreatorFromBodyData(): object | array //TODO
+    public function objectCreatorFromBodyData(): BaseEntity | array //TODO
     {
         $this->currentTableNameSetter();
         $jsonData = file_get_contents('php://input');
@@ -262,45 +244,77 @@ class DbService
             return $obj;
         }
     }
-    private function dbCreateQueryPreparer($obj, &$keys, &$values, &$bindArray, &$query, $tableName)
+    private function dbCreateQueryPreparer($obj, &$bindArray): string
     {
+        $tableName = $this->_tableName;
         $keys = "";
         $values = "";
         foreach ($obj as $key => $value) {
-            $keys .= "$key, ";
-            $values .= ":$key, ";
-            $bindArray[":$key"] = $value;
+            if ($key != "TagName") {
+                $keys .= "$key, ";
+                $values .= ":$key, ";
+                $bindArray[":$key"] = $value;
+            }
         }
         $keys = substr($keys, 0, -2);
         $values = substr($values, 0, -2);
-        $query = "INSERT INTO `$tableName` ($keys) VALUES ($values)";
+        return "INSERT INTO `$tableName` ($keys) VALUES ($values)";
     }
     private function memberController(BaseEntity $obj): bool
     {
         return $this->dbGetByIdAndTableName($obj->Id, $this->_tableName) ? true : false;
     }
+    private function dbCreateHelper($object)
+    {
+        $bindArray = [];
+        $query = "";
+        if ($this->memberController($object)) {
+            print_r("Id=$object->Id is already used.");
+        } else {
+            try {
+                $query = $this->dbCreateQueryPreparer($object, $bindArray);
+                $this->_db->executeQuery($query, $bindArray);
+                if ($object instanceof Facility && isset($object->TagName[0])) {
+                    $tagName = $object->TagName;
+                    for ($j = 0; $j < count($tagName); $j++) {
+
+                        $tagQuery = "SELECT tag.Id FROM tag WHERE tag.TagName='$tagName[$j]'";
+                        $this->_db->executeQuery($tagQuery);
+                        $result = $this->_db->getStatement()->fetchObject();
+                        if ($result)
+                            $tagId = $result->Id;
+                        else {
+                            $tagId = mt_rand(0, 999999999);
+                            $tagQuery = "INSERT INTO tag (`Id`, `TagName`) VALUES ($tagId, '$tagName[$j]')";
+                            $this->dbGetByQuery($tagQuery);
+                        }
+                        $facilityTagsSelectQuery = "SELECT * FROM facilitytags WHERE facilitytags.TagId='$tagId'";
+                        $this->_db->executeQuery($facilityTagsSelectQuery);
+                        $result = $this->_db->getStatement()->fetchObject();
+
+                        if (!is_null($result)) {
+                            $facilityId = $object->Id;
+                            $this->p($facilityId);
+                            $facilityTagsInsertQuery = "INSERT INTO facilitytags (`facilityId`, `tagId`) VALUES ($facilityId, '$tagId')";
+                            $this->_db->executeQuery($facilityTagsInsertQuery);
+                        }
+                    }
+                }
+            } catch (\Throwable $th) {
+            }
+        }
+    }
     function dbCreate()
     {
         $this->currentTableNameSetter();
-        $tableName = $this->_tableName;
         $objects = $this->objectCreatorFromBodyData();
-        $bindArray = [];
-        $keys = "";
-        $values = "";
-        $query = "";
+
         if (is_array($objects)) {
             for ($i = 0; $i < count($objects); $i++) {
-                if ($this->memberController($objects[$i])) {
-                    throw new Exception;
-                }
-                $this->dbCreateQueryPreparer($objects[$i], $keys, $values, $bindArray, $query, $tableName);
-                $this->_db->executeQuery($query, $bindArray);
+                $this->dbCreateHelper($objects[$i]);
             }
         } else {
-
-
-            $this->dbCreateQueryPreparer($objects, $keys, $values, $bindArray, $query, $tableName);
-            $this->_db->executeQuery($query, $bindArray);
+            $this->dbCreateHelper($objects);
         }
     }
     function dbUpdate()
