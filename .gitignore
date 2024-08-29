@@ -58,5 +58,4 @@ vendor/symfony/
 
 # Ignore other potentially sensitive files
 *.log
-*.sql
 *.sqlite
